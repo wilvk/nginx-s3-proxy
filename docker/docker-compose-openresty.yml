@@ -1,0 +1,37 @@
+version: "2"
+
+services:
+
+  s3-proxy-openresty:
+    build:
+      context: .
+      dockerfile: Dockerfile-openresty
+    depends_on:
+      - local-capture
+    working_dir: /work
+    volumes:
+      - ../openresty/sha1.lua:/work/sha1.lua
+      - ../openresty/base64.lua:/work/base64.lua
+      - ../openresty/conf.d:/work/conf/conf.d
+      - ../openresty/nginx.conf:/work/conf/nginx.conf
+    ports:
+      - "8000:8000"
+    environment:
+      - AWS_S3_BUCKET_NAME
+      - AWS_REGION
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_SECURITY_TOKEN
+      - AWS_DEBUG
+    command: /usr/local/openresty/nginx/sbin/nginx -p /work -c /work/conf/nginx.conf
+
+  local-capture:
+    build:
+      context: .
+      dockerfile: Dockerfile-local-capture
+    working_dir: /work
+    volumes:
+      - ../local-capture:/work
+    expose:
+      - 8000
+    entrypoint: /work/test-server.py

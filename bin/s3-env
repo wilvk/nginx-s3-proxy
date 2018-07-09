@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# a script to run if you are in an aws instance to get creds
+#
+# run as:
+#    source bin/s3-env.sh <aws_region> <aws_bucket_name>
+
+BUCKET_NAME=$1
+REGION=$2
+
+echo "usage: source bin/s3/s3-env <aws_region> <s3_bucket_name>"
+echo "Used for sourcing AWS environment variables before running auto/dev-environment-proxy-up"
+
+echo "export AWS_S3_BUCKET_NAME=$BUCKET_NAME"
+export AWS_S3_BUCKET_NAME="$BUCKET_NAME"
+
+echo "export AWS_REGION=$REGION"
+export AWS_REGION="$REGION"
+
+echo "Testing for AWS metadata endpoint..."
+curl --max-time 5 http://169.254.169.254/ &> /dev/null
+return_code=$?
+
+if [ $return_code != 0 ]; then
+  echo "Not running in AWS"
+  echo "You need to source AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SECURITY_TOKEN from elsewhere."
+else
+  echo "Running in AWS"
+  instance_profile=$(curl http://169.254.169.254/latest/meta-data/iam/security-credentials/)
+  echo "export AWS_ACCESS_KEY_ID"
+  echo "export AWS_SECRET_ACCESS_KEY"
+  echo "export AWS_SECURITY_TOKEN"
+  export AWS_ACCESS_KEY_ID=$(curl http://169.254.169.254/latest/meta-data/iam/security-credentials/${instance_profile} | grep AccessKeyId | cut -d':' -f2 | sed 's/[^0-9A-Z]*//g')
+  export AWS_SECRET_ACCESS_KEY=$(curl http://169.254.169.254/latest/meta-data/iam/security-credentials/${instance_profile} | grep SecretAccessKey | cut -d':' -f2 | sed 's/[^0-9A-Za-z/+=]*//g')
+  export AWS_SECURITY_TOKEN=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/${instance_profile} | sed -n '/Token/{p;}' | cut -f4 -d'"')
+fi
+
