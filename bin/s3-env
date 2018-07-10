@@ -5,17 +5,30 @@
 # run as:
 #    source bin/s3-env.sh <aws_region> <aws_bucket_name>
 
-BUCKET_NAME=$1
-REGION=$2
+usage_text() {
+  echo
+  echo "Usage: source bin/s3/s3-env <aws_region> <s3_bucket_name>"
+  echo "  Used for sourcing AWS environment variables before running auto/dev-environment-up"
+  echo
+}
 
-echo "usage: source bin/s3/s3-env <aws_region> <s3_bucket_name>"
-echo "Used for sourcing AWS environment variables before running auto/dev-environment-proxy-up"
+if [ -z "$1" ]; then
+  echo "Error: <aws_region> not specified."
+  usage_text
+  return 1
+fi
 
-echo "export AWS_S3_BUCKET_NAME=$BUCKET_NAME"
-export AWS_S3_BUCKET_NAME="$BUCKET_NAME"
+if [ -z "$2" ]; then
+  echo "Error: <s3_bucket_name> not specified."
+  usage_text
+  return 1
+fi
 
-echo "export AWS_REGION=$REGION"
-export AWS_REGION="$REGION"
+echo "export AWS_REGION=$1"
+export AWS_REGION="$1"
+
+echo "export AWS_S3_BUCKET_NAME=$2"
+export AWS_S3_BUCKET_NAME="$2"
 
 echo "Testing for AWS metadata endpoint..."
 curl --max-time 5 http://169.254.169.254/ &> /dev/null

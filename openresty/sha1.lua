@@ -1,4 +1,5 @@
 -- adapted from https://github.com/kikito/sha1.lua/blob/master/sha1.lua
+
 module("sha1", package.seeall)
 local sha1 = {
   _VERSION     = "sha.lua 0.5.0",

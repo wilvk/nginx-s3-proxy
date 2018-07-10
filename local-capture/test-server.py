@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-# taken gratis from: https://gist.github.com/phrawzty/62540f146ee5e74ea1ab
-
 import SimpleHTTPServer
 import SocketServer
 import logging
