@@ -1,6 +1,6 @@
 # nginx-s3-proxy
 
-Test harness for proxying file requests to s3 via nginx
+Test harness and proxy for authenticated file requests to s3
 
 # Overview
 
